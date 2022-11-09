@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dsb-ui-deployment
+  labels:
+    app: dsb
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dsb
+  template:
+    metadata:
+      labels:
+        app: dsb
+    spec:
+      containers:
+        - name: nginx
+          image: deep-state-bots:a
+          ports:
+            - containerPort: 8080
