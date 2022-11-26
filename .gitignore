@@ -2,3 +2,8 @@
 /.idea/modules.xml
 /.idea/vcs.xml
 /.idea/misc.xml
+/terraform/eks-cluster/.terraform
+/terraform/iam/.terraform
+/.idea/workspace.xml
+/terraform/iam/terraform.tfstate
+/terraform/eks-cluster/terraform.tfstate
