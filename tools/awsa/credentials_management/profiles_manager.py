@@ -13,13 +13,14 @@ DEFAULT_PROFILE = "default"
 DEFAULT_PROFILE_BACKUP = DEFAULT_PROFILE + "-backup"
 MFA_EXPIRATION_SECONDS = 60 * 60 * 24
 
-def authenticate_to_aws(environment: str, set_default_profile: bool = False) -> None:
-    base_profile = _base_profile_name(environment)
-    if not aws_credentials_file.profile_exists(base_profile):
-        _init_profile(base_profile, environment)
 
-    existing_credentials = aws_credentials_file.get_profile_credentials(environment.lower())
-    if existing_credentials and _is_credentials_valid(existing_credentials, environment):
+def authenticate_to_aws(profile: str, set_default_profile: bool = False) -> None:
+    base_profile = _base_profile_name(profile)
+    if not aws_credentials_file.profile_exists(base_profile):
+        _init_profile(base_profile, profile)
+
+    existing_credentials = aws_credentials_file.get_profile_credentials(profile.lower())
+    if existing_credentials and _is_credentials_valid(existing_credentials, profile):
         if set_default_profile:
             backup_default_profile()
             aws_credentials_file.set_profile(DEFAULT_PROFILE, existing_credentials)
@@ -27,7 +28,7 @@ def authenticate_to_aws(environment: str, set_default_profile: bool = False) -> 
 
     credentials = aws_credentials_file.get_profile_credentials(base_profile)
     mfa_serial_number = _get_mfa_serial_number(credentials)
-    mfa_code = input(f'Please enter your MFA code for the {environment} AWS account:  ')
+    mfa_code = input(f'Profile \"{profile}\": Enter MFA code:  ')
     sts_boto_client = _get_sts_boto_client(credentials)
 
     get_session_token_response = sts_boto_client.get_session_token(
@@ -47,7 +48,7 @@ def authenticate_to_aws(environment: str, set_default_profile: bool = False) -> 
         backup_default_profile()
         aws_credentials_file.set_profile(DEFAULT_PROFILE, temporary_credentials)
 
-    aws_credentials_file.set_profile(environment.lower(), temporary_credentials)
+    aws_credentials_file.set_profile(profile.lower(), temporary_credentials)
     aws_environment_variables_setter.set_aws_environment_variables(temporary_credentials)
 
 
@@ -57,22 +58,22 @@ def backup_default_profile():
         aws_credentials_file.rename_profile(DEFAULT_PROFILE, DEFAULT_PROFILE_BACKUP)
 
 
-def delete_base_profile(environment: str):
-    aws_credentials_file.delete_profile(_base_profile_name(environment))
+def delete_base_profile(profile: str):
+    aws_credentials_file.delete_profile(_base_profile_name(profile))
 
 
 def restore_default_profile() -> None:
     aws_credentials_file.rename_profile(DEFAULT_PROFILE_BACKUP, DEFAULT_PROFILE)
 
 
-def _base_profile_name(environment: str) -> str:
-    return f"{environment.lower()}-base"
+def _base_profile_name(profile: str) -> str:
+    return f"{profile.lower()}-base"
 
 
-def _init_profile(base_profile, environment):
+def _init_profile(base_profile, profile):
     while True:
-        credentials = {AWS_ACCESS_KEY_ID: input(f"{environment} AWS Access Key ID:  ").strip(),
-                       AWS_SECRET_ACCESS_KEY: input(f"{environment} AWS Secret Access Key:  ").strip(),
+        credentials = {AWS_ACCESS_KEY_ID: input(f"Profile \"{profile}\": AWS_ACCESS_KEY_ID:  ").strip(),
+                       AWS_SECRET_ACCESS_KEY: input(f"Profile \"{profile}\": AWS_SECRET_ACCESS_KEY:  ").strip(),
                        REGION: DEFAULT_REGION}
         try:
             _get_mfa_serial_number(credentials)
@@ -92,14 +93,16 @@ def _get_mfa_serial_number(credentials):
     )
 
 
-def _is_credentials_valid(credentials, environment):
+def _is_credentials_valid(credentials, profile):
     aws_environment_variables_setter.set_aws_environment_variables(credentials)
-    ec2client = boto3.client("ec2")
+    ec2_client = boto3.client("ec2")
     try:
-        ec2client.describe_instances()
-        return True
+        zones = ec2_client.describe_availability_zones()
+        if zones.get("AvailabilityZones", None):
+            return True
+        return False
     except ClientError:
-        logging.info(f"Previous {environment} MFA session is invalid")
+        logging.info(f"Profile \"{profile}\": Existing MFA session is invalid")
         return False
 
 

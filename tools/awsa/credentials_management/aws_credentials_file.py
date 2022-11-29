@@ -7,7 +7,7 @@ AWS_SECRET_ACCESS_KEY = 'aws_secret_access_key'
 AWS_SESSION_TOKEN = 'aws_session_token'
 REGION = 'region'
 
-# dict of dicts, eg: { 'PPE': { 'aws_access_key_id':'FGTACAECA12DF', ... }}
+# dict of dicts, eg: { 'eks': { 'aws_access_key_id':'FGTACAECA12DF', ... }}
 _aws_profiles = {}
 
 

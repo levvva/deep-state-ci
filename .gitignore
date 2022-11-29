@@ -7,3 +7,4 @@
 /.idea/workspace.xml
 /terraform/iam/terraform.tfstate
 /terraform/eks-cluster/terraform.tfstate
+/terraform/eks-cluster/.terraform.lock.hcl
