@@ -1,5 +1,5 @@
 resource "aws_iam_policy" "eks_creators_policy" {
-  name        = "eks_creators_policy"
+  name = "eks_creators_policy"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -10,7 +10,9 @@ resource "aws_iam_policy" "eks_creators_policy" {
           "eks:DeleteCluster",
           "eks:ListClusters",
           "eks:DescribeCluster",
+          "eks:CreateNodegroup",
           "ec2:Describe*",
+          "eks:TagResource",
           "ec2:AllocateAddress",
           "logs:CreateLogGroup",
           "ec2:CreateVpc",
@@ -21,10 +23,14 @@ resource "aws_iam_policy" "eks_creators_policy" {
           "ec2:DeleteSecurityGroup",
           "ec2:CreateInternetGateway",
           "ec2:CreateRouteTable",
+          "ec2:DeleteRoute",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:DisassociateRouteTable",
           "ec2:RevokeSecurityGroupEgress",
           "ec2:ModifyVpcAttribute",
           "ec2:CreateSubnet",
           "ec2:DeleteSubnet",
+          "ec2:CreateLaunchTemplate",
           "ec2:AssociateRouteTable",
           "ec2:CreateNetworkInterface",
           "ec2:DeleteInternetGateway",
@@ -41,12 +47,12 @@ resource "aws_iam_policy" "eks_creators_policy" {
         ]
         Effect   = "Allow"
         Resource = "*",
-        "Condition": {
-          "BoolIfExists": {
-            "aws:MultiFactorAuthPresent": "true"
+        "Condition" : {
+          "BoolIfExists" : {
+            "aws:MultiFactorAuthPresent" : "true"
           },
-          "StringEquals": {
-            "aws:RequestedRegion": var.region
+          "StringEquals" : {
+            "aws:RequestedRegion" : var.region
           }
         }
       },
@@ -64,13 +70,17 @@ resource "aws_iam_policy" "eks_creators_policy" {
           "iam:GetRolePolicy",
           "iam:DeleteRolePolicy",
           "iam:PassRole",
-          "iam:ListInstanceProfilesForRole"
+          "iam:ListInstanceProfilesForRole",
+          "iam:CreateOpenIDConnectProvider",
+          "iam:GetOpenIDConnectProvider",
+          "iam:DeleteOpenIDConnectProvider",
+          "iam:TagOpenIDConnectProvider"
         ]
         Effect   = "Allow"
         Resource = "*",
-        "Condition": {
-          "BoolIfExists": {
-            "aws:MultiFactorAuthPresent": "true"
+        "Condition" : {
+          "BoolIfExists" : {
+            "aws:MultiFactorAuthPresent" : "true"
           }
 
         }
@@ -82,16 +92,16 @@ resource "aws_iam_policy" "eks_creators_policy" {
 resource "aws_iam_role" "eks-cluster-creator" {
   name = "eks-cluster-creator"
   assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Sid": "EKSClusterAssumeRole",
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": "arn:aws:iam::067818091930:user/ekscreator",
-          "Service": "eks.amazonaws.com"
+        "Sid" : "EKSClusterAssumeRole",
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : "arn:aws:iam::067818091930:user/ekscreator",
+          "Service" : "eks.amazonaws.com"
         },
-        "Action": "sts:AssumeRole"
+        "Action" : "sts:AssumeRole"
       }
     ]
   })
@@ -99,14 +109,14 @@ resource "aws_iam_role" "eks-cluster-creator" {
     name = "eks-cluster-creator-inline-policy"
 
     policy = jsonencode({
-      "Version": "2012-10-17"
-      "Statement": [
+      "Version" : "2012-10-17"
+      "Statement" : [
         {
-          "Action": [
+          "Action" : [
             "logs:CreateLogGroup"
           ],
-          "Effect": "Deny",
-          "Resource": "arn:aws:logs:${var.region}:${var.account_id}:log-group:/aws/eks/*/cluster"
+          "Effect" : "Deny",
+          "Resource" : "arn:aws:logs:${var.region}:${var.account_id}:log-group:/aws/eks/*/cluster"
         }
       ],
     })

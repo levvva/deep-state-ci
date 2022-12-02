@@ -14,6 +14,8 @@
     <option name="PROGRAM_PARAMETERS" value="apply -auto-approve" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/terraform/eks-cluster" />
     <option name="PASS_PARENT_ENVS" value="true" />
-    <method v="2" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="awsa ekscreator" run_configuration_type="PythonConfigurationType" />
+    </method>
   </configuration>
 </component>

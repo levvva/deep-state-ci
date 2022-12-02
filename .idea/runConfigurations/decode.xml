@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="decode" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+    <output_file path="/tmp/console-decode" is_save="true" />
     <module name="deep-state-ci" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -13,7 +14,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/awsa/decode.py" />
-    <option name="PARAMETERS" value="" />
+    <option name="PARAMETERS" value="/tmp/console" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
