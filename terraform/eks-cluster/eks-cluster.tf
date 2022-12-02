@@ -1,3 +1,8 @@
+data "aws_iam_role" "eks-cluster-creator" {
+  name = "eks-cluster-creator"
+}
+
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "18.26.6"
@@ -7,6 +12,9 @@ module "eks" {
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+
+  create_iam_role = false
+  iam_role_arn = data.aws_iam_role.eks-cluster-creator.arn
 
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
